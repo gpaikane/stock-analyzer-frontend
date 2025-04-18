@@ -104,6 +104,7 @@ def  initiate_final_summary(fundamentals_values, news, ticker):
 
 def display_final_summary(summary_placeholder, ticker, task_id):
     if(task_id is None):
+        write_placeholder(summary_placeholder, "")
         st.write(f"Summarized opinion could not be generated for {ticker}")
         return
 
