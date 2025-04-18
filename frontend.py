@@ -189,7 +189,7 @@ if __name__ == "__main__":
         fig = plots.plot_ploty(pd.DataFrame(forecast), ticker=ticker)
         st.plotly_chart(fig, use_container_width=True)
 
-        if news_summary is not None or fundamentals_values is not None:
+        if news_summary is not None or (fundamentals_values is not None and len(fundamentals_values) != 0):
             if news_summary is None:
                 news_summary = ""
             if fundamentals_values is None or len(fundamentals_values)==0:
