@@ -195,8 +195,7 @@ if __name__ == "__main__":
             if "Developer accounts are limited to 100 requests" in news_summary :
                 news_summary = ""
             if fundamentals_values is None or len(fundamentals_values)==0:
-                fundamentals_values = dict[str:str]
-                fundamentals_values= None
+                fundamentals_values = {'1':'1'}
 
             #Initiate Final Summary
             summary_placeholder, summary_task_id = initiate_final_summary(fundamentals_values, news_summary, ticker)
