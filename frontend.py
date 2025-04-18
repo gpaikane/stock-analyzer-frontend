@@ -98,11 +98,15 @@ def  initiate_final_summary(fundamentals_values, news, ticker):
 
     print("summary_task-----", summary_task)
     logging.info("Summary Task id: "+ summary_task["task_id"])
-    task_id = summary_task["task_id"]
+    task_id = None if summary_task is None else summary_task["task_id"]
     return  summary_placeholder, task_id
 
 
 def display_final_summary(summary_placeholder, ticker, task_id):
+    if(task_id is None):
+        st.write(f"Summarized opinion could not be generated for {ticker}")
+        return
+
     logging.info("getting final summary")
     final_result = poll_endpoint_with_params(EndPoints.GET_ASYNC_RESULTS.value, task_id)
 
