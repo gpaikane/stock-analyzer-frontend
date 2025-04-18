@@ -172,7 +172,7 @@ if __name__ == "__main__":
         fundamentals_task_id, fundamental_placeholder, ticker = initiate_fundamental_calculation()
 
         #Initiate Search News
-        news_task_id = initiate_company_news_search_and_summary(company_input)
+        #news_task_id = initiate_company_news_search_and_summary(company_input)
 
         #Get forecast
         logging.info("getting company forecast")
@@ -183,24 +183,28 @@ if __name__ == "__main__":
 
         news_placeholder = create_placeholder("Searching for news to generate summary...")
         #Get and display news summary
-        news_summary = display_news_search_and_summary(news_placeholder,ticker, news_task_id)
+       # news_summary = display_news_search_and_summary(news_placeholder,ticker, news_task_id)
 
         # Display forecast
         fig = plots.plot_ploty(pd.DataFrame(forecast), ticker=ticker)
         st.plotly_chart(fig, use_container_width=True)
-
+        news_summary = ""
         if news_summary is not None or (fundamentals_values is not None and len(fundamentals_values) != 0):
             if news_summary is None:
                 news_summary = ""
             if "Developer accounts are limited to 100 requests" in news_summary :
                 news_summary = ""
             if fundamentals_values is None or len(fundamentals_values)==0:
-                fundamentals_values = {'1':'1'}
+                fundamentals_values = dict()
 
-            #Initiate Final Summary
-            summary_placeholder, summary_task_id = initiate_final_summary(fundamentals_values, news_summary, ticker)
-
-            #Display Final Summary
-            display_final_summary(summary_placeholder, ticker, summary_task_id)
+            try:
+                #Initiate Final Summary
+                summary_placeholder, summary_task_id = initiate_final_summary(fundamentals_values, news_summary, ticker)
+            except Exception as e:
+                st.markdown(f"**Final summary for {ticker} could not be generated due to lack of data:**")
+                logging.info(e)
+            else:
+                #Display Final Summary
+                display_final_summary(summary_placeholder, ticker, summary_task_id)
         else:
             st.markdown(f"**Final summary for {ticker} could not be generated due to lack of data:**")
