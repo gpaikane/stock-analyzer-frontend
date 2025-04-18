@@ -33,7 +33,7 @@ def plot_ploty( df, ticker):
 
     # Update layout
     fig.update_layout(
-        title=f'Historical vs Forecasted Data for {ticker}',
+        title=f'Historical vs Forecasted Data for {ticker} using FB-PROPHET',
         xaxis_title='Date',
         yaxis_title='Value',
         template='plotly_white'

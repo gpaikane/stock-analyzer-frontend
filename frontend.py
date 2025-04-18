@@ -154,47 +154,46 @@ def display_fundamental_calculation(ticker, placeholder, task_id):
         st.write(final_fundamental_df)
         return  final_fundamental_df, fundamentals_values
 
+if __name__ == "__main__":
+    # Submit button
+    if st.button("Submit"):
+        if company_input.strip() == "":
+            st.warning("Please enter a valid company name and country.")
+        else:
+            # Display the captured inputs
+            st.markdown(f"**Company & Country:** {company_input}")
+            st.markdown(f"**Number of Parameters Chosen:** {num_params}")
 
-# Submit button
-if st.button("Submit"):
-    if company_input.strip() == "":
-        st.warning("Please enter a valid company name and country.")
-    else:
-        # Display the captured inputs
-        st.markdown(f"**Company & Country:** {company_input}")
-        st.markdown(f"**Number of Parameters Chosen:** {num_params}")
+        #Initiate  Fundamentals Calculations
+        fundamentals_task_id, fundamental_placeholder, ticker = initiate_fundamental_calculation()
 
-    #Initiate  Fundamentals Calculations
-    fundamentals_task_id, fundamental_placeholder, ticker = initiate_fundamental_calculation()
+        #Initiate Search News
+        news_placeholder, news_task_id = initiate_company_news_search_and_summary(company_input)
 
-    #Initiate Search News
-    news_placeholder, news_task_id = initiate_company_news_search_and_summary(company_input)
+        #Get forecast
+        logging.info("getting company forecast")
+        forecast = bridge.call_endpoint_with_params(EndPoints.GET_FORECAST.value, ticker=ticker)
 
-    #Get forecast
-    logging.info("getting company forecast")
-    forecast = bridge.call_endpoint_with_params(EndPoints.GET_FORECAST.value, ticker=ticker)
+        #Get and display calculated fundamentals_values
+        _, fundamentals_values = display_fundamental_calculation(ticker,fundamental_placeholder,fundamentals_task_id)
 
-    #Get and display calculated fundamentals_values
-    _, fundamentals_values = display_fundamental_calculation(ticker,fundamental_placeholder,fundamentals_task_id)
+        #Get and display news summary
+        news_summary = display_news_search_and_summary(news_placeholder,ticker, news_task_id)
 
-    #Get and display news summary
-    news_summary = display_news_search_and_summary(news_placeholder,ticker, news_task_id)
+        # Display forecast
+        fig = plots.plot_ploty(pd.DataFrame(forecast), ticker=ticker)
+        st.plotly_chart(fig, use_container_width=True)
 
-    # Display forecast
-    st.markdown(f"**{ticker} Forecast for next 60 day using FB-PROPHET:**")
-    fig = plots.plot_ploty(pd.DataFrame(forecast), ticker=ticker)
-    st.plotly_chart(fig, use_container_width=True)
+        if news_summary is not None or fundamentals_values is not None:
+            if news_summary is None:
+                news_summary = ""
+            if fundamentals_values is None or len(fundamentals_values)==0:
+                fundamentals_values = dict()
 
-    if news_summary is not None or fundamentals_values is not None:
-        if news_summary is None:
-            news_summary = ""
-        if fundamentals_values is None or len(fundamentals_values)==0:
-            fundamentals_values = dict()
+            #Initiate Final Summary
+            summary_placeholder, summary_task_id = initiate_final_summary(fundamentals_values, news_summary, ticker)
 
-        #Initiate Final Summary
-        summary_placeholder, summary_task_id = initiate_final_summary(fundamentals_values, news_summary, ticker)
-
-        #Display Final Summary
-        display_final_summary(summary_placeholder, ticker, summary_task_id)
-    else:
-        st.markdown(f"**Final summary for {ticker} could not be generated due to lack of data:**")
+            #Display Final Summary
+            display_final_summary(summary_placeholder, ticker, summary_task_id)
+        else:
+            st.markdown(f"**Final summary for {ticker} could not be generated due to lack of data:**")
