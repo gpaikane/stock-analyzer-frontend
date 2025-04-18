@@ -196,6 +196,8 @@ if __name__ == "__main__":
                 fundamentals_values = dict()
 
             logging.info("News Summary ----", news_summary)
+            logging.info("Fundamental Values----", fundamentals_values)
+
             #Initiate Final Summary
             summary_placeholder, summary_task_id = initiate_final_summary(fundamentals_values, news_summary, ticker)
 
