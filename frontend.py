@@ -172,7 +172,7 @@ if __name__ == "__main__":
         fundamentals_task_id, fundamental_placeholder, ticker = initiate_fundamental_calculation()
 
         #Initiate Search News
-        #news_task_id = initiate_company_news_search_and_summary(company_input)
+        news_task_id = initiate_company_news_search_and_summary(company_input)
 
         #Get forecast
         logging.info("getting company forecast")
@@ -183,12 +183,15 @@ if __name__ == "__main__":
 
         news_placeholder = create_placeholder("Searching for news to generate summary...")
         #Get and display news summary
-       # news_summary = display_news_search_and_summary(news_placeholder,ticker, news_task_id)
+        news_summary = display_news_search_and_summary(news_placeholder,ticker, news_task_id)
 
         # Display forecast
         fig = plots.plot_ploty(pd.DataFrame(forecast), ticker=ticker)
         st.plotly_chart(fig, use_container_width=True)
-        news_summary = ""
+
+        if "Developer accounts are limited to 100 requests" in news_summary:
+            news_summary = ""
+
         if news_summary is not None or (fundamentals_values is not None and len(fundamentals_values) != 0):
             if news_summary is None:
                 news_summary = ""
