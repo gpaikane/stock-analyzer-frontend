@@ -78,7 +78,6 @@ def  initiate_fundamental_calculation():
 
 def  initiate_company_news_search_and_summary(company_input):
 
-    news_placeholder = create_placeholder("Searching for news to generate summary...")
     logging.info("getting company and country suffix")
     company, suffix = bridge.call_endpoint_with_params(EndPoints.GET_COMPANY_DETAILS.value, text=company_input.strip())
 
@@ -86,7 +85,7 @@ def  initiate_company_news_search_and_summary(company_input):
     news_task = bridge.call_endpoint_with_params(EndPoints.GET_NEWS.value, company=company, suffix=suffix)
     logging.info("News Task id: "+ news_task["task_id"])
     task_id = news_task["task_id"]
-    return  news_placeholder, task_id
+    return  task_id
 
 
 def  initiate_final_summary(fundamentals_values, news, ticker):
@@ -168,7 +167,7 @@ if __name__ == "__main__":
         fundamentals_task_id, fundamental_placeholder, ticker = initiate_fundamental_calculation()
 
         #Initiate Search News
-        news_placeholder, news_task_id = initiate_company_news_search_and_summary(company_input)
+        news_task_id = initiate_company_news_search_and_summary(company_input)
 
         #Get forecast
         logging.info("getting company forecast")
@@ -177,6 +176,7 @@ if __name__ == "__main__":
         #Get and display calculated fundamentals_values
         _, fundamentals_values = display_fundamental_calculation(ticker,fundamental_placeholder,fundamentals_task_id)
 
+        news_placeholder = create_placeholder("Searching for news to generate summary...")
         #Get and display news summary
         news_summary = display_news_search_and_summary(news_placeholder,ticker, news_task_id)
 
