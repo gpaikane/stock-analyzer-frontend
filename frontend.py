@@ -196,6 +196,7 @@ if __name__ == "__main__":
                 news_summary = ""
             if fundamentals_values is None or len(fundamentals_values)==0:
                 fundamentals_values = dict[str:str]
+                fundamentals_values= None
 
             #Initiate Final Summary
             summary_placeholder, summary_task_id = initiate_final_summary(fundamentals_values, news_summary, ticker)
