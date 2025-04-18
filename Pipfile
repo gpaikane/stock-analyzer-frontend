@@ -7,6 +7,7 @@ name = "pypi"
 streamlit = "*"
 jupyter = "*"
 plotly = "*"
+dotenv = "*"
 
 [dev-packages]
 

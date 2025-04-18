@@ -1,8 +1,12 @@
 import requests
 import json
+import  os
 
-URL = "https://investment-analyzer-fastapi-5e7e9fc21917.herokuapp.com/"
-#URL = "http://127.0.0.1:8000/"
+from dotenv import load_dotenv
+
+load_dotenv()
+
+URL = os.environ.get("FRONTEND_URL")
 
 def get_endpoint_with_data(endpoint, **kwargs):
     url = URL + endpoint[0] + "/"
