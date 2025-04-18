@@ -112,9 +112,9 @@ def display_final_summary(summary_placeholder, ticker, task_id):
     final_result = poll_endpoint_with_params(EndPoints.GET_ASYNC_RESULTS.value, task_id)
 
     logging.info("summary--- " + f"{final_result}")
+    write_placeholder(summary_placeholder, "")
 
     if final_result != "" and final_result is not None and len(final_result) !=0:
-        write_placeholder(summary_placeholder,"")
         st.markdown(f"**Summarized opinion on short and long term investment for:  {ticker}**")
         st.markdown(final_result)
     else:
@@ -124,13 +124,12 @@ def display_final_summary(summary_placeholder, ticker, task_id):
 def display_news_search_and_summary(news_placeholder, ticker, task_id):
     logging.info("getting company news")
     new_summary_result = poll_endpoint_with_params(EndPoints.GET_ASYNC_RESULTS.value, task_id)
-
+    write_placeholder(news_placeholder, "")
     if new_summary_result == "" or new_summary_result is None or len(new_summary_result) ==0:
-        write_placeholder(news_placeholder, "")
+
         st.markdown(f"**News summary of {ticker} could not be generated**")
         return None
     else:
-        write_placeholder(news_placeholder, "")
         st.markdown(f"**Here is the news summary of {ticker}:**")
         st.markdown(new_summary_result)
         return new_summary_result
@@ -189,17 +188,11 @@ if __name__ == "__main__":
         fig = plots.plot_ploty(pd.DataFrame(forecast), ticker=ticker)
         st.plotly_chart(fig, use_container_width=True)
 
-        if "Developer accounts are limited to 100 requests" in news_summary:
-            news_summary = ""
-
         if news_summary is not None or (fundamentals_values is not None and len(fundamentals_values) != 0):
             if news_summary is None:
                 news_summary = ""
-            if "Developer accounts are limited to 100 requests" in news_summary :
-                news_summary = ""
             if fundamentals_values is None or len(fundamentals_values)==0:
                 fundamentals_values = dict()
-
             try:
                 #Initiate Final Summary
                 summary_placeholder, summary_task_id = initiate_final_summary(fundamentals_values, news_summary, ticker)
