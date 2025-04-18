@@ -188,19 +188,15 @@ if __name__ == "__main__":
         # Display forecast
         fig = plots.plot_ploty(pd.DataFrame(forecast), ticker=ticker)
         st.plotly_chart(fig, use_container_width=True)
-        logging.info("News Summary ----", news_summary)
-        logging.info(news_summary is not None)
-        logging.info(fundamentals_values is not None)
+
         logging.info(len(fundamentals_values) != 0)
         if news_summary is not None or (fundamentals_values is not None and len(fundamentals_values) != 0):
             if news_summary is None:
                 news_summary = ""
+            if "Developer accounts are limited to 100 requests" in news_summary :
+                news_summary = ""
             if fundamentals_values is None or len(fundamentals_values)==0:
-                fundamentals_values = dict()
-
-
-            logging.info("News Summary ----", news_summary)
-            logging.info("Fundamental Values length----", str(len(fundamentals_values)))
+                fundamentals_values = dict[str:str]
 
             #Initiate Final Summary
             summary_placeholder, summary_task_id = initiate_final_summary(fundamentals_values, news_summary, ticker)
