@@ -88,7 +88,6 @@ def  initiate_company_news_search_and_summary(company_input):
 
 def  initiate_final_summary(fundamentals_values, news, ticker):
 
-    summary_placeholder = create_placeholder("Generating final summary:")
     logging.info("getting company summarized opinion")
     summary_task = bridge.get_endpoint_with_data(EndPoints.GET_SUMMARY.value, fundamentals_values=fundamentals_values,
                                             new_summary=news,
@@ -97,7 +96,7 @@ def  initiate_final_summary(fundamentals_values, news, ticker):
     print("summary_task-----", summary_task)
     logging.info("Summary Task id: "+ summary_task["task_id"])
     task_id = None if summary_task is None else summary_task["task_id"]
-    return  summary_placeholder, task_id
+    return  task_id
 
 
 def display_final_summary(summary_placeholder, ticker, task_id):
@@ -209,12 +208,15 @@ if __name__ == "__main__":
                 news_summary = ""
             if fundamentals_values is None or len(fundamentals_values)==0:
                 fundamentals_values = dict()
+            summary_placeholder = create_placeholder("Generating final summary:")
+
             try:
                 #Initiate Final Summary
-                summary_placeholder, summary_task_id = initiate_final_summary(fundamentals_values, news_summary, ticker)
+                summary_task_id = initiate_final_summary(fundamentals_values, news_summary, ticker)
             except Exception as e:
                 st.markdown(f"**Final summary for {ticker} could not be generated due to lack of data:**")
                 logging.info(e)
+                write_placeholder(summary_placeholder, "")
             else:
                 #Display Final Summary
                 display_final_summary(summary_placeholder, ticker, summary_task_id)
