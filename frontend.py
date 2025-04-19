@@ -63,7 +63,6 @@ def poll_endpoint_with_params(endpoint, task_id):
 
 def  initiate_fundamental_calculation(ticker_name):
 
-    placeholder = create_placeholder("Calculating fundamentals it may take few minutes...")
     logging.info("getting top fundamentals")
     fundamentals = bridge.get_endpoint_with_data(EndPoints.GET_TOP_FUNDAMENTALS.value,
                                                  fundamental_count=int(num_params))
@@ -72,7 +71,7 @@ def  initiate_fundamental_calculation(ticker_name):
                                             ticker_name=ticker_name)
     logging.info("Fundamental Task id: "+ task["task_id"])
     task_id = task["task_id"]
-    return  task_id, placeholder, ticker_name
+    return  task_id, ticker_name
 
 def  initiate_company_news_search_and_summary(company_input):
 
@@ -172,28 +171,33 @@ if __name__ == "__main__":
 
         logging.info("getting ticker")
         ticker = bridge.get_endpoint_with_data(EndPoints.GET_TICKER.value, text=company_input.strip())
+        logging.info("TICKER:", ticker)
+        fundamental_placeholder = create_placeholder("Calculating fundamentals it may take few minutes...")
 
         try:
             #Initiate  Fundamentals Calculations
-            fundamentals_task_id, fundamental_placeholder, ticker = initiate_fundamental_calculation(ticker)
+            fundamentals_task_id, ticker = initiate_fundamental_calculation(ticker)
         except Exception as e:
             logging.exception(e)
+            write_placeholder(fundamental_placeholder, "")
             st.markdown(f"**Fundamentals of {ticker} could not be calculated, please submit the request again:**")
+
         try:
+            news_placeholder = create_placeholder("Searching for news to generate summary...")
             #Initiate Search News
             news_task_id = initiate_company_news_search_and_summary(company_input)
         except Exception as e:
             logging.exception(e)
+            write_placeholder(news_placeholder, "")
+            st.markdown(f"**News summary for {ticker} could not be generated due to lack of data:**")
 
         #Get forecast
         logging.info("getting company forecast")
         forecast = bridge.call_endpoint_with_params(EndPoints.GET_FORECAST.value, ticker=ticker)
-
         if fundamentals_task_id is not None:
             #Get and display calculated fundamentals_values
             _, fundamentals_values = display_fundamental_calculation(ticker,fundamental_placeholder,fundamentals_task_id)
 
-        news_placeholder = create_placeholder("Searching for news to generate summary...")
 
         if news_task_id is not None:
             #Get and display news summary
