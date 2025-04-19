@@ -183,12 +183,10 @@ if __name__ == "__main__":
             st.markdown(f"**Fundamentals of {ticker} could not be calculated, please submit the request again:**")
 
         try:
-            news_placeholder = create_placeholder("Searching for news to generate summary...")
             #Initiate Search News
             news_task_id = initiate_company_news_search_and_summary(company_input)
         except Exception as e:
             logging.exception(e)
-            write_placeholder(news_placeholder, "")
             st.markdown(f"**News summary for {ticker} could not be generated due to lack of data:**")
 
         #Get forecast
@@ -201,7 +199,10 @@ if __name__ == "__main__":
 
         if news_task_id is not None:
             #Get and display news summary
+            news_placeholder = create_placeholder("Searching for news to generate summary...")
             news_summary = display_news_search_and_summary(news_placeholder,ticker, news_task_id)
+            write_placeholder(news_placeholder, "")
+
 
         # Display forecast
         fig = plots.plot_ploty(pd.DataFrame(forecast), ticker=ticker)
