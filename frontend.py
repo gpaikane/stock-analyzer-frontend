@@ -61,20 +61,18 @@ def poll_endpoint_with_params(endpoint, task_id):
 
     return  poll_result["result"]
 
-def  initiate_fundamental_calculation():
+def  initiate_fundamental_calculation(ticker_name):
 
-    placeholder = create_placeholder("Calculating fundamentals...")
-    logging.info("getting ticker")
-    ticker = bridge.get_endpoint_with_data(EndPoints.GET_TICKER.value, text=company_input.strip())
+    placeholder = create_placeholder("Calculating fundamentals it may take few minutes...")
     logging.info("getting top fundamentals")
     fundamentals = bridge.get_endpoint_with_data(EndPoints.GET_TOP_FUNDAMENTALS.value,
                                                  fundamental_count=int(num_params))
     logging.info("calculating fundamental values")
     task = bridge.call_endpoint_with_params(EndPoints.GET_FUNDAMENTAL_VALUES.value, fundamentals=fundamentals,
-                                            ticker_name=ticker)
+                                            ticker_name=ticker_name)
     logging.info("Fundamental Task id: "+ task["task_id"])
     task_id = task["task_id"]
-    return  task_id, placeholder, ticker
+    return  task_id, placeholder, ticker_name
 
 def  initiate_company_news_search_and_summary(company_input):
 
@@ -167,22 +165,40 @@ if __name__ == "__main__":
             st.markdown(f"**Company & Country:** {company_input}")
             st.markdown(f"**Number of Parameters Chosen:** {num_params}")
 
-        #Initiate  Fundamentals Calculations
-        fundamentals_task_id, fundamental_placeholder, ticker = initiate_fundamental_calculation()
+        fundamentals_task_id = None
+        fundamentals_values = None
+        fundamental_placeholder = None
+        news_task_id = None
+        news_summary = None
 
-        #Initiate Search News
-        news_task_id = initiate_company_news_search_and_summary(company_input)
+        logging.info("getting ticker")
+        ticker = bridge.get_endpoint_with_data(EndPoints.GET_TICKER.value, text=company_input.strip())
+
+        try:
+            #Initiate  Fundamentals Calculations
+            fundamentals_task_id, fundamental_placeholder, ticker = initiate_fundamental_calculation(ticker)
+        except Exception as e:
+            logging.exception(e)
+            st.markdown(f"**Fundamentals of {ticker} could not be calculated, please submit the request again:**")
+        try:
+            #Initiate Search News
+            news_task_id = initiate_company_news_search_and_summary(company_input)
+        except Exception as e:
+            logging.exception(e)
 
         #Get forecast
         logging.info("getting company forecast")
         forecast = bridge.call_endpoint_with_params(EndPoints.GET_FORECAST.value, ticker=ticker)
 
-        #Get and display calculated fundamentals_values
-        _, fundamentals_values = display_fundamental_calculation(ticker,fundamental_placeholder,fundamentals_task_id)
+        if fundamentals_task_id is not None:
+            #Get and display calculated fundamentals_values
+            _, fundamentals_values = display_fundamental_calculation(ticker,fundamental_placeholder,fundamentals_task_id)
 
         news_placeholder = create_placeholder("Searching for news to generate summary...")
-        #Get and display news summary
-        news_summary = display_news_search_and_summary(news_placeholder,ticker, news_task_id)
+
+        if news_task_id is not None:
+            #Get and display news summary
+            news_summary = display_news_search_and_summary(news_placeholder,ticker, news_task_id)
 
         # Display forecast
         fig = plots.plot_ploty(pd.DataFrame(forecast), ticker=ticker)
