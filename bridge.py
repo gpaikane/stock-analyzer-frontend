@@ -15,7 +15,7 @@ def get_endpoint_with_data(endpoint, **kwargs):
     data = kwargs
     print(data)
     try:
-        response = requests.get(url, headers=headers, data=json.dumps(data))
+        response = requests.post(url, headers=headers, data=json.dumps(data))
         print(response.json())
         response.raise_for_status()  # Raise an exception for bad status codes
         return (response.json())
