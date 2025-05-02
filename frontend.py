@@ -16,7 +16,7 @@ class EndPoints(Enum):
     GET_TICKER = "get_ticker",
     GET_COMPANY_DETAILS = "get_company_details",
     GET_NEWS = "get_news",
-    GET_SUMMARY = "get_summary",
+    GET_SUMMARY = "generate_summary",
     GET_FORECAST = "get_forecasted_data",
     GET_ASYNC_RESULTS = "get_async_results",
     NONE = "none"
@@ -64,7 +64,7 @@ def poll_endpoint_with_params(endpoint, task_id):
 def  initiate_fundamental_calculation(ticker_name):
 
     logging.info("getting top fundamentals")
-    fundamentals = bridge.get_endpoint_with_data(EndPoints.GET_TOP_FUNDAMENTALS.value,
+    fundamentals = bridge.call_endpoint_with_params(EndPoints.GET_TOP_FUNDAMENTALS.value,
                                                  fundamental_count=int(num_params))
     logging.info("calculating fundamental values")
     task = bridge.call_endpoint_with_params(EndPoints.GET_FUNDAMENTAL_VALUES.value, fundamentals=fundamentals,
@@ -170,7 +170,7 @@ if __name__ == "__main__":
         news_summary = None
 
         logging.info("getting ticker")
-        ticker = bridge.get_endpoint_with_data(EndPoints.GET_TICKER.value, text=company_input.strip())
+        ticker = bridge.call_endpoint_with_params(EndPoints.GET_TICKER.value, text=company_input.strip())
         logging.info("TICKER:", ticker)
         fundamental_placeholder = create_placeholder("Calculating fundamentals it may take few minutes...")
 
@@ -191,7 +191,12 @@ if __name__ == "__main__":
 
         #Get forecast
         logging.info("getting company forecast")
-        forecast = bridge.call_endpoint_with_params(EndPoints.GET_FORECAST.value, ticker=ticker)
+        forecast = None
+        try:
+            forecast = bridge.call_endpoint_with_params(EndPoints.GET_FORECAST.value, ticker=ticker)
+        except Exception as e:
+            forecast = None
+
         if fundamentals_task_id is not None:
             #Get and display calculated fundamentals_values
             _, fundamentals_values = display_fundamental_calculation(ticker,fundamental_placeholder,fundamentals_task_id)
@@ -205,8 +210,11 @@ if __name__ == "__main__":
 
 
         # Display forecast
-        fig = plots.plot_ploty(pd.DataFrame(forecast), ticker=ticker)
-        st.plotly_chart(fig, use_container_width=True)
+        if(forecast is not None):
+            fig = plots.plot_ploty(pd.DataFrame(forecast), ticker=ticker)
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.markdown('**Forecast Could noy be generated due to lack of data')
 
         if news_summary is not None or (fundamentals_values is not None and len(fundamentals_values) != 0):
             if news_summary is None:
